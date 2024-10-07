@@ -1,58 +1,12 @@
 .o_rate_manager {
     background-color: white;
-
-    button {
-        &.o_mrp_mps_procurement {
-            background-color: $gray-200;
-            border: none;
-        }
-        &.o_no_padding {
-            padding: 0 0 0 0;
-        }
-    }
-
-    input {
-        border-style: groove;
-        height: 100%;
-        padding-top: 0;
-    }
-
-    table {
-        table-layout: fixed;
-        thead th {
-            @include o-position-sticky($top: 0px, $left: 0px);
-            z-index: 10;
-            border-top: none;
-            &:first-child {
-                z-index: 11;
-            }
-        }
-        tbody th {
-            @include o-position-sticky($left: 0px);
-            &:first-child {
-                z-index: 1;
-                background-color: $gray-200;
-            }
-        }
-        th {
-            vertical-align: middle;
-            min-width: 110px;
-            text-align: center !important;
-        }
-        .o_mps_inline {
-            display: inline-flex;
-            max-width: 38%;
-        }
-    }
+    height:100%;
+    display:flex;
 
     tr {
         line-height: 1em;
         min-height: 1em;
         height: 1em;
-    }
-
-    .btn {
-        line-height: 1em;
     }
 
     .form-control {
@@ -63,19 +17,6 @@
     .o_input {
         line-height: 1em;
     }
-
-    .o_mrp_mps_hover {
-        background-color: #d6d8d9;
-
-        &.alert-success {
-            background-color: darken(#dff0d8, 10%);
-        }
-
-        &.alert-warning {
-            background-color: darken(#fcf8e3, 10%);
-        }
-    }
-
 }
 
 
@@ -146,6 +87,135 @@ div.justify-content-between {
   column-gap: 5px !important;
 }
 
-.ks-d-year{
-    display: none;
+
+
+.o_sidebar {
+    width: 300px;
+    height: 100%;
+    border-right: 1px solid #dee2e6;
+    transition: transform 0.3s ease; /* Smooth transition */
+    transform: translateX(0); /* Sidebar visible by default */
 }
+
+.o_sidebar .list-group-items {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    background: #e6f2f3;
+    display: flex;
+    align-items: center;
+    min-height: 100px;
+    border-radius:6px;
+}
+
+.o_sidebar .list-group-items:hover {
+ background: #c1d0d1;
+}
+.o_sidebar .active {
+ background: #99d6db;
+}
+
+.o_sidebar .active:hover {
+ background: #99d6db;
+}
+
+
+
+.o_sidebar .list-group-items .delete-button{
+    place-items: center;
+    display: grid;
+    position:absolute;
+    bottom:10px;
+    right: 5px;
+    background-color: indianred;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    height:25px;
+    cursor: pointer;
+}
+
+.o_sidebar .list-group-items .edit-button{
+    place-items: center;
+    display: grid;
+    position:absolute;
+    top:10px;
+    right: 5px;
+    border: none;
+    background-color: teal;
+    border-radius: 50%;
+    color: white;
+    height:25px;
+    cursor: pointer;
+}
+.o_sidebar .list-group-items .edit-button:hover{
+    background-color:#015e5e;
+}
+.o_sidebar .list-group-items .delete-button:hover{
+    background-color:#d62f2f;
+}
+
+ #list-group::-webkit-scrollbar {
+    width: 4px;
+}
+ #table_body::-webkit-scrollbar {
+    width: 4px;
+}
+
+#table_body #list-group::-webkit-scrollbar-thumb {
+    background-color: #dacaca;
+    border-radius: 6px;
+}
+#table_body::-webkit-scrollbar-thumb {
+    background-color: #dacaca;
+    border-radius: 6px;
+}
+
+
+.custom-table {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #ddd;
+            margin: 20px auto;
+            width:100%;
+        }
+
+        /* Header styling */
+        .custom-table-header {
+            display: flex;
+            background-color: #f5f5f5;
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        .custom-table-header div {
+            flex: 1;
+            text-align: left;
+            padding: 0 10px;
+            border-right: 1px solid #ddd;
+        }
+
+        .custom-table-header div:last-child {
+            border-right: none;
+        }
+
+        /* Row styling */
+        .custom-table-row {
+            display: flex;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        .custom-table-row div {
+            flex: 1;
+            padding: 0 10px;
+            border-right: 1px solid #ddd;
+        }
+
+        .custom-table-row div:last-child {
+            border-right: none;
+        }
+
+        /* Hover effect on rows */
+        .custom-table-row:hover {
+            background-color: #f9f9f9;
+        }
+

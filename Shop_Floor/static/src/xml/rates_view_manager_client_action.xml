@@ -1,25 +1,269 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
 
-    <t t-name="rate_manager">
-        <div class="o_rate_manager">
-            <t t-set="productsPeriods" t-value="widget.ratePeriods"/>
-            <t t-set="productsSidebar" t-value="widget.productsSidebar"/>
-            <t t-set="currentPricelist" t-value="widget.currentPricelist"/>
-            <div class="text-nowrap mr0 ml0">
-                <table class="table o_rate_manager_product_table">
-                    <thead class="thead-light">
-                        <tr>
-                            <th/>
-                            <th class="text-right pr-1" scope="col" t-foreach="productsPeriods" t-as="period">
-                                <div><t t-esc="period.format('ddd DD/MM').toUpperCase()"/></div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <t t-call="rate_manager_lines"/>
-                </table>
-            </div>
+    <t t-name="SheetComponent">
+      <div class="sheet-component" style="flex:1;padding:20px 40px;">
+          <div class="d-flex flex-column align-items-center" style="font-size:18px; gap:20px;">
+
+        <span class="text-center" style=" padding:0.75rem; font-size:24px">Sheet: <span class="text-capitalize" style="font-weight:bold;" t-esc="widget.widget.sheetName" /></span>
+
+              <div style="align-self:start;">
+                    <button type="button" class="bg-primary border-0 o_add_a_line_button" style="
+                        margin-bottom: 10px;
+                        padding:0.75rem;
+                        font-size: 20px;
+                        border-radius: 6px;
+                        width:200px;">
+                        <t t-esc="widget.widget.onClickAddALine ? 'Save' : 'Add a line'"/>
+
+                    </button>
+          <button t-if="widget.widget.onClickAddALine" type="button" class="btn btn-secondary o_cancle_button" style="
+                        margin-bottom: 10px;
+                        padding:0.75rem;
+                        font-size: 20px;
+                        border-radius: 6px;
+                        color: white;
+                        background: #6c757d;
+                        width:200px;">
+                        Cancle
+                    </button>
         </div>
+
+        <div class="custom-table">
+
+            <div class="custom-table-header d-flex">
+                <div>Column</div>
+                <div>Type</div>
+                <div>Mandatory</div>
+            </div>
+            <div id="table_body" style="max-height:40dvh; overflow-y:scroll;">
+                <t t-foreach="widget.widget.table" t-as="row" t-key="row.id">
+                    <div class="custom-table-row d-flex">
+                        <div><t t-esc="row.column" /></div>
+                        <div><t t-esc="row.type_of_fields" /></div>
+                        <div><t t-esc="row.mandatory" /></div>
+                    </div>
+                </t>
+                <t t-if="widget.widget.onClickAddALine">
+                    <div class="custom-table-row d-flex">
+                        <input
+                          type="text"
+                          placeholder="Column name"
+                          class="form-control"
+                        />
+                        <select id="sqlDataTypes" name="sqlDataTypes">
+                            <option value="int">INTEGER</option>
+                            <option value="smallint">SMALLINT</option>
+                            <option value="bigint">BIGINT</option>
+                            <option value="serial">SERIAL</option>
+                            <option value="boolean">BOOLEAN</option>
+                            <option value="char">CHAR</option>
+                            <option value="varchar">VARCHAR</option>
+                            <option value="text">TEXT</option>
+                            <option value="date">DATE</option>
+                            <option value="time">TIME</option>
+                            <option value="timestamp">TIMESTAMP</option>
+                            <option value="float">FLOAT</option>
+                            <option value="real">REAL</option>
+                            <option value="numeric">NUMERIC</option>
+                            <option value="json">JSON</option>
+                            <option value="jsonb">JSONB</option>
+                            <option value="bytea">BYTEA</option>
+                            <option value="uuid">UUID</option>
+                            <option value="array">ARRAY</option>
+                            <option value="enum">ENUM</option>
+                        </select>
+
+                        <select name="mandatory" id="mandatory" >
+                          <option value="true">True</option>
+                          <option value="false">False</option>
+                        </select>
+                    </div>
+
+              </t>
+
+
+
+            </div>
+
+
+
+</div>
+<!--        <table class="table table-hover table-bordered table-striped text-truncate" >-->
+<!--          <thead>-->
+<!--            <tr>-->
+<!--              <th class="text-start">Excel column</th>-->
+<!--              <th class="text-start">Type</th>-->
+<!--              <th class="text-start">Mandatory</th>-->
+<!--            </tr>-->
+<!--          </thead>-->
+<!--          <tbody>-->
+<!--              <div>-->
+<!--                  -->
+<!--            <t t-foreach="widget.widget.table" t-as="row" t-key="row.id">-->
+<!--              <tr >-->
+<!--                <td><t t-esc="row.column" /></td>-->
+<!--                <td><t t-esc="row.type_of_fields" /></td>-->
+<!--                <td><t t-esc="row.mandatory" /></td>-->
+<!--              </tr>-->
+<!--            </t>-->
+<!--              <t t-if="widget.widget.onClickAddALine">-->
+<!--                  <tr>-->
+<!--                      <td>-->
+<!--                        <input-->
+<!--                          type="text"-->
+<!--                          placeholder="Column name"-->
+<!--                          class="form-control"-->
+<!--                        />-->
+<!--                      </td>-->
+<!--                      <td>-->
+<!--                        <select id="sqlDataTypes" name="sqlDataTypes">-->
+<!--                            <option value="int">INTEGER</option>-->
+<!--                            <option value="smallint">SMALLINT</option>-->
+<!--                            <option value="bigint">BIGINT</option>-->
+<!--                            <option value="serial">SERIAL</option>-->
+<!--                            <option value="boolean">BOOLEAN</option>-->
+<!--                            <option value="char">CHAR</option>-->
+<!--                            <option value="varchar">VARCHAR</option>-->
+<!--                            <option value="text">TEXT</option>-->
+<!--                            <option value="date">DATE</option>-->
+<!--                            <option value="time">TIME</option>-->
+<!--                            <option value="timestamp">TIMESTAMP</option>-->
+<!--                            <option value="float">FLOAT</option>-->
+<!--                            <option value="real">REAL</option>-->
+<!--                            <option value="numeric">NUMERIC</option>-->
+<!--                            <option value="json">JSON</option>-->
+<!--                            <option value="jsonb">JSONB</option>-->
+<!--                            <option value="bytea">BYTEA</option>-->
+<!--                            <option value="uuid">UUID</option>-->
+<!--                            <option value="array">ARRAY</option>-->
+<!--                            <option value="enum">ENUM</option>-->
+<!--                        </select>-->
+<!--                      </td>-->
+<!--                      <td>-->
+<!--                        <select name="mandatory" id="mandatory" >-->
+<!--                          <option value="true">True</option>-->
+<!--                          <option value="false">False</option>-->
+<!--                        </select>-->
+<!--                      </td>-->
+<!--                    </tr>-->
+
+<!--              </t>-->
+<!--              </div>-->
+<!--          </tbody>-->
+<!--        </table>-->
+
+
+
+
+                        </div>
+      </div>
+</t>
+
+
+
+    <t t-name="shop_floor_modal">
+        <div class="o_dialog" id="dialog_0">
+            <div role="dialog" class="modal d-block o_technical_modal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-md">
+                    <div class="modal-content" style="top: -12px; left: -31px;">
+                        <header class="modal-header">
+                            <h4 class="modal-title text-break">Select Work Centers for this station</h4>
+                            <button type="button" class="btn-close" aria-label="Close" tabindex="-1"></button>
+                        </header>
+                        <footer class="modal-footer justify-content-around justify-content-md-start flex-wrap gap-1 w-100"
+                                style="order:2">
+                            <button class="btn btn-primary">Confirm</button>
+                        </footer>
+                        <main class="modal-body">
+                        <div class="o_mrp_workcenter_dialog w-100">
+                        <button class="btn d-flex align-items-center text-start py-2 fs-3 pointer-cursor">
+            Line 1</button>
+                            <button class="btn d-flex align-items-center text-start py-2 fs-3 pointer-cursor">
+            Drill Station 1</button>
+                            <button class="btn d-flex align-items-center text-start py-2 fs-3 pointer-cursor">Assembly Line 2</button></div></main></div></div></div></div>
+
+        <!--        <div role="dialog"-->
+        <!--             class="modal-dialog position-absolute start-0 top-0 d-flex align-items-center justify-content-center h-100 w-100 mw-100 m-0 p-0 pe-auto bg-dark bg-opacity-50">-->
+        <!--            <div class="modal-dialog modal-dialog-centered modal-lg m-2 " style="max-width: 700px; width: 100%;">-->
+        <!--                <div class="modal-content" style="top: 0px; left: 0px;">-->
+        <!--                    <header class="modal-header">-->
+        <!--                        <h4 class="modal-title text-break">Select Work Centers for this station</h4>-->
+        <!--                        <button type="button" class="btn-close" aria-label="Close" tabindex="-1"></button>-->
+        <!--                    </header>-->
+        <!--                    <footer class="modal-footer justify-content-around justify-content-md-start flex-wrap gap-1 w-100" style="order:2">-->
+        <!--                        <button class="btn btn-primary">Confirm</button>-->
+        <!--                    </footer>-->
+        <!--                    <main class="modal-body">-->
+        <!--                        <div class="o_mrp_workcenter_dialog w-100">-->
+        <!--                            <button class="btn d-flex align-items-center text-start py-2 fs-3 pointer-cursor">-->
+        <!--                                <input class="form-check-input position-relative me-2" type="checkbox" name="Assembly Line 1"/>Assembly Line 1-->
+        <!--                            </button>-->
+        <!--                            <button class="btn d-flex align-items-center text-start py-2 fs-3 pointer-cursor">-->
+        <!--                                <input class="form-check-input position-relative me-2" type="checkbox" name="Drill Station 1"/>Drill Station 1-->
+        <!--                            </button><button class="btn d-flex align-items-center text-start py-2 fs-3 pointer-cursor">-->
+        <!--                            <input class="form-check-input position-relative me-2" type="checkbox" name="Assembly Line 2"/>Assembly Line 2-->
+        <!--                            </button>-->
+        <!--                        </div>-->
+        <!--                    </main>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--        </div>-->
+    </t>
+
+    <t t-name="housekeeping_sidebar">
+        <div id="sidebar" class="o_sidebar d-flex flex-column bg-light shadow-sm p-3" style="gap:1rem;justify-content: space-between;">
+                    <div id="list-group" class="list-group list-group-flush" style="gap:1rem;overflow-y:auto;flex:1;">
+                        <t t-foreach="productsSidebar" t-as="productSidebar" t-key="productSidebar.categ.id" >
+                        <t t-set="class" t-value="selectedSheet == productSidebar.categ.id ? 'active' : ''"/>
+                            <span style="font-size: 18px;font-weight: 500;color: #344054; gap:10px; padding-left:50px; position: relative"
+                                  t-att-data-id="productSidebar.categ.id" t-att-data-name="productSidebar.categ.name"
+                                  t-attf-class="hello list-group-items list-group-item-action text-start #{class}">
+
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     style="width: 15px; height: 15px;vertical-align: middle;fill: currentColor;overflow: hidden; color:grey;"
+                                     viewBox="0 0 384 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+                                    <path d="M64 464c-8.8 0-16-7.2-16-16L48 64c0-8.8 7.2-16 16-16l160 0 0 80c0 17.7 14.3 32 32 32l80 0 0 288c0 8.8-7.2 16-16 16L64 464zM64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-293.5c0-17-6.7-33.3-18.7-45.3L274.7 18.7C262.7 6.7 246.5 0 229.5 0L64 0zm56 256c-13.3 0-24 10.7-24 24s10.7 24 24 24l144 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-144 0zm0 96c-13.3 0-24 10.7-24 24s10.7 24 24 24l144 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-144 0z"/>
+                                </svg>
+                                <t t-esc="productSidebar.categ.name"/>
+
+                            <button type="button" class="edit-button" t-att-data-id="productSidebar.categ.id" t-att-data-name="productSidebar.categ.name">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+
+                            <button type="button" class="delete-button" t-att-data-id="productSidebar.categ.id" t-att-data-name="productSidebar.categ.name">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                            </span>
+                        </t>
+                    </div>
+                    <button type="button" class="bg-primary o_new_sheet_create_button" style="
+                        margin-bottom: 10px;
+                        font-size: 20px;
+                        border-radius: 6px;
+                        height: 60px;
+                        border: 1px solid grey;">
+                        Create New Sheet
+                    </button>
+        </div>
+
+    </t>
+
+
+
+    <t t-name="rate_manager">
+            <div class="o_rate_manager">
+                <t t-set="productsSidebar" t-value="widget.productsSidebar"/>
+                <t t-set="currentPricelist" t-value="widget.currentPricelist"/>
+                <t t-set="selectedSheet" t-value="widget.selectedSheet"/>
+                <t t-call="housekeeping_sidebar"/>
+                <t t-if="widget.selectedSheet">
+                    <t t-call="SheetComponent"/>
+                </t>
+
+
+
+            </div>
     </t>
 
     <t t-name="rate_manager_nocontent_helper">
@@ -32,68 +276,6 @@
         </div>
     </t>
 
-    <t t-name="rate_manager_lines">
-        <t t-foreach="productsSidebar" t-as="productSidebar">
-            <tbody class="o_product_content" t-att-data-id="productSidebar.categ.id"
-                   t-att-data-name="productSidebar.categ.name">
-                <tr class="bg-light text-center text-truncate pr-4" style="min-width: 200px">
-                    <th scope="col" class="text-truncate">
-                        <t t-esc="productSidebar.categ.name"/>
-                    </th>
-                    <t t-foreach="productsPeriods" t-as="period">
-                        <t t-set="kpi_dict" t-value="widget.all_kpi_info[productSidebar.categ.id][period.format('YYYY-MM-DD')]"/>
-                        <th class="text-right px-2">
-                        <span class="custom_kpi_number"
-                                  t-att-title="'Occupancy -> '+kpi_dict.occupancy_rate +'%\nInventory -> '+kpi_dict.inventory + '\nAvailability -> '+ kpi_dict.availability_rate+'%'">
-                                <span>
-                                    <span t-esc="kpi_dict.occupancy_rate"/>%
-                                    <span class="ks-d-year">,</span>
-                                </span>
-                            <br/>
-                                <span>
-                                    <span t-esc="kpi_dict.inventory"/>
-                                    <span class="ks-d-year">,</span>
-                                </span>
-                            <br/>
-                                <span>
-                                    <span t-esc="kpi_dict.availability_rate"/>%
-                                    <span class="ks-d-year"></span>
-                                </span>
-                            <br/>
-                            </span>
-                        </th>
-                    </t>
-                </tr>
-                <t t-foreach="productSidebar.childrens" t-as="child">
-                    <tr class="room_type_product" t-att-data-id="child.id" t-att-data-name="child.name"
-                        t-att-data-sales_price="child.sales_price">
-                        <th scope="row" class="text-center text-truncate pr-4" style="min-width: 200px">
-                            <t t-esc="child.name"/>
-                        </th>
-                        <t t-foreach="productsPeriods" t-as="period">
-                        <th class="text-right px-2">
-                            <t t-if="currentPricelist">
-                                <t t-if="widget.getPricelistPrice" t-set="pricelist_value" t-value="widget.getPricelistPrice(child,period)"/>
-                                <t t-else="" t-set="pricelist_value" t-value="widget.widget.getPricelistPrice(child,period)"/>
-                                <t t-set="class" t-value="pricelist_value['class']"/>
-                                <input type="text" t-att-data-product_categ_id="productSidebar.categ.id"
-                                       t-att-data-product_id="child.id"
-                                       t-att-data-date="period.format('YYYY-MM-DD')"
-                                       t-att-data-hotel_rate_id="pricelist_value['id']"
-                                       t-att-value="pricelist_value['sales_price'].toFixed(2)"
-                                       t-att-class="'text-right form-control cell ' + class"
-                                />
-                            </t>
-                            <t t-else="">
-                                <span/>
-                            </t>
-                        </th>
-                    </t>
-                    </tr>
-                </t>
-            </tbody>
-        </t>
-    </t>
 
     <t t-name="rates_manager_control_panel_buttons">
         <t t-set="pricelists" t-value="widget.pricelist"/>
@@ -102,30 +284,14 @@
                 <div class="pricelist_container bg-primary">
                       <div class="dropdown">
                             <div class="caption bg-primary text-truncate px-3">Select a Pricelist</div>
-                            <div class="list">
+                          <div class="list">
                                 <t t-foreach="pricelists" t-as="pricelist">
-                                    <div class="item text-truncate" style="color:#000000" t-att-data-id="pricelist.id" t-att-data-name="pricelist.name"><t t-esc="pricelist.name"/></div>
+                                    <div class="item text-truncate" style="color:#000000" t-att-data-id="pricelist.id"
+                                         t-att-data-name="pricelist.name"><t t-esc="pricelist.name"/></div>
                                 </t>
                             </div>
                       </div>
                 </div>
-                <button type="button" class='btn btn-secondary o_select_update_rates ml-2'>Update Rates</button>
-                <button type="button" class='btn btn-secondary o_select_close_rooms mr-2'>Close Rooms</button>
-                <button type="button" class='btn btn-secondary o_select_open_rooms mr-2'>Open Rooms</button>
-                <button type="button" class='btn btn-primary o_rate_view_export_excel fa fa-download'/>
-            </div>
-            <div>
-                <button class="btn btn-primary o_rate_view_button_prev" title="Previous">
-                    <span class="fa fa-arrow-left"/>
-                </button>
-                <button class="btn btn-primary o_rate_view_button_today">
-                    Today
-                </button>
-                <button class="btn btn-primary o_rate_view_button_next" title="Next">
-                    <span class="fa fa-arrow-right"/>
-                </button>
-                <button type="button" class='btn btn-primary o_week' data-days="7">WEEK</button>
-                <button type="button" class='btn btn-primary o_week' data-days="14">2-WEEKS</button>
             </div>
         </div>
     </t>

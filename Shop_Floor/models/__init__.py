@@ -1,3 +1,3 @@
-# from . import template
-# from . import sheet
-# from . import table
+from . import template
+from . import sheet
+from . import table
