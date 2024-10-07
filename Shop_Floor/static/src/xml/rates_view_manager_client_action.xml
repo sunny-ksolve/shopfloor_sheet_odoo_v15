@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="rate_manager">
+        <div class="o_rate_manager">
+            <t t-set="productsPeriods" t-value="widget.ratePeriods"/>
+            <t t-set="productsSidebar" t-value="widget.productsSidebar"/>
+            <t t-set="currentPricelist" t-value="widget.currentPricelist"/>
+            <div class="text-nowrap mr0 ml0">
+                <table class="table o_rate_manager_product_table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th/>
+                            <th class="text-right pr-1" scope="col" t-foreach="productsPeriods" t-as="period">
+                                <div><t t-esc="period.format('ddd DD/MM').toUpperCase()"/></div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <t t-call="rate_manager_lines"/>
+                </table>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="rate_manager_nocontent_helper">
+        <div class="o_view_nocontent o_rate_manager">
+            <div class="o_nocontent_help">
+                <p class="o_view_nocontent_smiling_face">
+                    No Room yet. Add one to see Rate view manager.
+                </p>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="rate_manager_lines">
+        <t t-foreach="productsSidebar" t-as="productSidebar">
+            <tbody class="o_product_content" t-att-data-id="productSidebar.categ.id"
+                   t-att-data-name="productSidebar.categ.name">
+                <tr class="bg-light text-center text-truncate pr-4" style="min-width: 200px">
+                    <th scope="col" class="text-truncate">
+                        <t t-esc="productSidebar.categ.name"/>
+                    </th>
+                    <t t-foreach="productsPeriods" t-as="period">
+                        <t t-set="kpi_dict" t-value="widget.all_kpi_info[productSidebar.categ.id][period.format('YYYY-MM-DD')]"/>
+                        <th class="text-right px-2">
+                        <span class="custom_kpi_number"
+                                  t-att-title="'Occupancy -> '+kpi_dict.occupancy_rate +'%\nInventory -> '+kpi_dict.inventory + '\nAvailability -> '+ kpi_dict.availability_rate+'%'">
+                                <span>
+                                    <span t-esc="kpi_dict.occupancy_rate"/>%
+                                    <span class="ks-d-year">,</span>
+                                </span>
+                            <br/>
+                                <span>
+                                    <span t-esc="kpi_dict.inventory"/>
+                                    <span class="ks-d-year">,</span>
+                                </span>
+                            <br/>
+                                <span>
+                                    <span t-esc="kpi_dict.availability_rate"/>%
+                                    <span class="ks-d-year"></span>
+                                </span>
+                            <br/>
+                            </span>
+                        </th>
+                    </t>
+                </tr>
+                <t t-foreach="productSidebar.childrens" t-as="child">
+                    <tr class="room_type_product" t-att-data-id="child.id" t-att-data-name="child.name"
+                        t-att-data-sales_price="child.sales_price">
+                        <th scope="row" class="text-center text-truncate pr-4" style="min-width: 200px">
+                            <t t-esc="child.name"/>
+                        </th>
+                        <t t-foreach="productsPeriods" t-as="period">
+                        <th class="text-right px-2">
+                            <t t-if="currentPricelist">
+                                <t t-if="widget.getPricelistPrice" t-set="pricelist_value" t-value="widget.getPricelistPrice(child,period)"/>
+                                <t t-else="" t-set="pricelist_value" t-value="widget.widget.getPricelistPrice(child,period)"/>
+                                <t t-set="class" t-value="pricelist_value['class']"/>
+                                <input type="text" t-att-data-product_categ_id="productSidebar.categ.id"
+                                       t-att-data-product_id="child.id"
+                                       t-att-data-date="period.format('YYYY-MM-DD')"
+                                       t-att-data-hotel_rate_id="pricelist_value['id']"
+                                       t-att-value="pricelist_value['sales_price'].toFixed(2)"
+                                       t-att-class="'text-right form-control cell ' + class"
+                                />
+                            </t>
+                            <t t-else="">
+                                <span/>
+                            </t>
+                        </th>
+                    </t>
+                    </tr>
+                </t>
+            </tbody>
+        </t>
+    </t>
+
+    <t t-name="rates_manager_control_panel_buttons">
+        <t t-set="pricelists" t-value="widget.pricelist"/>
+        <div class="d-flex justify-content-between w-100" style="min-width: 650px;">
+            <div class="d-flex" style="max-height: 40px;">
+                <div class="pricelist_container bg-primary">
+                      <div class="dropdown">
+                            <div class="caption bg-primary text-truncate px-3">Select a Pricelist</div>
+                            <div class="list">
+                                <t t-foreach="pricelists" t-as="pricelist">
+                                    <div class="item text-truncate" style="color:#000000" t-att-data-id="pricelist.id" t-att-data-name="pricelist.name"><t t-esc="pricelist.name"/></div>
+                                </t>
+                            </div>
+                      </div>
+                </div>
+                <button type="button" class='btn btn-secondary o_select_update_rates ml-2'>Update Rates</button>
+                <button type="button" class='btn btn-secondary o_select_close_rooms mr-2'>Close Rooms</button>
+                <button type="button" class='btn btn-secondary o_select_open_rooms mr-2'>Open Rooms</button>
+                <button type="button" class='btn btn-primary o_rate_view_export_excel fa fa-download'/>
+            </div>
+            <div>
+                <button class="btn btn-primary o_rate_view_button_prev" title="Previous">
+                    <span class="fa fa-arrow-left"/>
+                </button>
+                <button class="btn btn-primary o_rate_view_button_today">
+                    Today
+                </button>
+                <button class="btn btn-primary o_rate_view_button_next" title="Next">
+                    <span class="fa fa-arrow-right"/>
+                </button>
+                <button type="button" class='btn btn-primary o_week' data-days="7">WEEK</button>
+                <button type="button" class='btn btn-primary o_week' data-days="14">2-WEEKS</button>
+            </div>
+        </div>
+    </t>
+</templates>

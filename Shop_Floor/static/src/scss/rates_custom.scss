@@ -1,0 +1,151 @@
+.o_rate_manager {
+    background-color: white;
+
+    button {
+        &.o_mrp_mps_procurement {
+            background-color: $gray-200;
+            border: none;
+        }
+        &.o_no_padding {
+            padding: 0 0 0 0;
+        }
+    }
+
+    input {
+        border-style: groove;
+        height: 100%;
+        padding-top: 0;
+    }
+
+    table {
+        table-layout: fixed;
+        thead th {
+            @include o-position-sticky($top: 0px, $left: 0px);
+            z-index: 10;
+            border-top: none;
+            &:first-child {
+                z-index: 11;
+            }
+        }
+        tbody th {
+            @include o-position-sticky($left: 0px);
+            &:first-child {
+                z-index: 1;
+                background-color: $gray-200;
+            }
+        }
+        th {
+            vertical-align: middle;
+            min-width: 110px;
+            text-align: center !important;
+        }
+        .o_mps_inline {
+            display: inline-flex;
+            max-width: 38%;
+        }
+    }
+
+    tr {
+        line-height: 1em;
+        min-height: 1em;
+        height: 1em;
+    }
+
+    .btn {
+        line-height: 1em;
+    }
+
+    .form-control {
+        padding: 0em 0em;
+        color: $black;
+    }
+
+    .o_input {
+        line-height: 1em;
+    }
+
+    .o_mrp_mps_hover {
+        background-color: #d6d8d9;
+
+        &.alert-success {
+            background-color: darken(#dff0d8, 10%);
+        }
+
+        &.alert-warning {
+            background-color: darken(#fcf8e3, 10%);
+        }
+    }
+
+}
+
+
+div.dropdown > div.caption {
+  padding: 5px 22px 0px 28px;
+  border-radius: 3px;
+  cursor: pointer;
+  max-width: 138px;
+  font-weight: bold;
+}
+
+div.dropdown > div.list {
+  position: absolute;
+  background-color: #f2f2f2;
+  width: 100%;
+  border-radius: 0 0 3px 3px;
+  display: none;
+  z-index:9999;
+  min-width: 140px;
+}
+
+div.dropdown > div.list > div.item {
+  padding: 11px 24px;
+  cursor: pointer;
+}
+
+div.dropdown > div.list > div.item.selected {
+  font-weight: bold;
+}
+
+div.dropdown > div.caption:hover,
+div.dropdown > div.list > div.item:hover {
+  background-color: rgb(83, 161, 214);
+}
+
+div.dropdown.open > div.caption {
+  border-radius: 3px 3px 0 0;
+  border-bottom: solid 1px #999;
+}
+
+div.dropdown.open > div.list {
+  display: block;
+}
+
+input.text-right.form-control.cell {
+    border-color: rgba(0,0,0,0.2);
+    padding: 3px;
+    box-sizing: border-box;
+    text-align: center !important;
+}
+input.text-right.form-control.cell.input_green {
+    background: #00bba0;
+    border-color: #079984;
+}
+input.text-right.form-control.cell.input_yellow {
+    background: #fbbb00;
+    border-color: #f5ba0e;
+}
+input.text-right.form-control.cell.input_red {
+    background: #ff5a4b;
+    border-color: #ed4435;
+}
+.o_rate_manager table tbody th[scope="col"]:first-child {
+    background: #f8f9fa;
+}
+
+div.justify-content-between {
+  column-gap: 5px !important;
+}
+
+.ks-d-year{
+    display: none;
+}
