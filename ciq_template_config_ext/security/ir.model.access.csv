@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+ciq_template_config_ext.access_shop_floor_template,access_shop_floor_template,ciq_template_config_ext.model_shop_floor_template,,1,1,1,1
+ciq_template_config_ext.access_shop_floor_sheet,access_shop_floor_sheet,ciq_template_config_ext.model_shop_floor_sheet,,1,1,1,1
+ciq_template_config_ext.access_shop_floor_table,access_shop_floor_table,ciq_template_config_ext.model_shop_floor_table,,1,1,1,1
+ciq_template_config_ext.access_shop_floor_new_sheet_wizard,access_shop_floor_new_sheet_wizard,ciq_template_config_ext.model_shop_floor_new_sheet_wizard,,1,1,1,1
