@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-   <menuitem id="shop_floor_menu_root" name="Configuration"
-                  parent="ngdcm_app.menu_ngdcm_settings" sequence="12"
-                  />
+    <menuitem id="shop_floor_menu_root" name="Configuration" sequence="12"/>
 
-        <record id="shop_floor_js_view_action" model="ir.actions.client">
-            <field name="res_model">shop.floor.table</field>
-            <field name="name">Config Template</field>
-            <field name="tag">rates_view_manager_client_action</field>
-        </record>
+    <record id="shop_floor_js_view_action" model="ir.actions.client">
+        <field name="res_model">shop.floor.table</field>
+        <field name="name">Config Template</field>
+        <field name="tag">rates_view_manager_client_action</field>
+    </record>
 
     <record id="shop_floor_template_action" model="ir.actions.act_window">
         <field name="name">Template</field>
@@ -41,6 +39,13 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
+                    <field name="shop_floor_template_sheet_count" invisible="1"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(ciq_template_config_ext.shop_floor_js_view_action)d" icon="fa-arrow-up"
+                                class="oe_stat_button" string="Sheet" type="action"
+                                context="{'default_template_id': id}"
+                        />
+                    </div>
                     <group>
                         <field name="template_name" string="name"/>
                     </group>
@@ -76,8 +81,8 @@
         <field name="model">shop.floor.table</field>
         <field name="arch" type="xml">
             <search>
-                <field name="sheet_id" string="Sheet" filter_domain="[('sheet_id', 'ilike', raw_value)]" />
-<!--                <field name="product_id" string="Rooms" domain="[('hotel_service_type', '=', 'room'),('categ_id.type', '=', 'room')]"/>-->
+                <field name="sheet_id" string="Sheet" filter_domain="[('sheet_id', 'ilike', raw_value)]"/>
+                <!--                <field name="product_id" string="Rooms" domain="[('hotel_service_type', '=', 'room'),('categ_id.type', '=', 'room')]"/>-->
             </search>
         </field>
     </record>
@@ -112,8 +117,8 @@
               parent="shop_floor_menu_root" action="shop_floor_table_action"
               sequence="3"/>
 
-        <menuitem id="js_view"
-                  name="Js_view"
-                  parent="shop_floor_menu_root" action="shop_floor_js_view_action"
-                  sequence="5"/>
+    <menuitem id="js_view"
+              name="configuration"
+              parent="shop_floor_menu_root" action="shop_floor_js_view_action"
+              sequence="4"/>
 </odoo>

@@ -1,5 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-Shop_Floor.access_shop_floor_template,access_shop_floor_template,Shop_Floor.model_shop_floor_template,base.group_user,1,1,1,1
-Shop_Floor.access_shop_floor_sheet,access_shop_floor_sheet,Shop_Floor.model_shop_floor_sheet,base.group_user,1,1,1,1
-Shop_Floor.access_shop_floor_table,access_shop_floor_table,Shop_Floor.model_shop_floor_table,base.group_user,1,1,1,1
-Shop_Floor.access_shop_floor_new_sheet_wizard,access_shop_floor_new_sheet_wizard,Shop_Floor.model_shop_floor_new_sheet_wizard,base.group_user,1,1,1,1

@@ -11,7 +11,6 @@ odoo.define('hotel.RatesClientAction', function(require) {
     var Dialog = require('web.Dialog');
     var field_utils = require('web.field_utils');
     var session = require('web.session');
-    var time = require('web.time');
 
 
     var QWeb = core.qweb;
@@ -31,10 +30,11 @@ odoo.define('hotel.RatesClientAction', function(require) {
             'change .cell': 'createRecord',
             'click .delete-button': 'deleteSheet',
             'click .edit-button': 'editSheet',
-            'dblclick .hello': 'editSheet',
             'click .hello': 'onSheetClick',
             'click .o_add_a_line_button': 'onAddALineClicked',
             'click .o_cancle_button': 'onCancleClicked',
+            'click .open_template': 'openTemplate',
+            'click .sidebar-toggle-btn': '_onResize',
         },
         custom_events: _.extend({}, AbstractAction.prototype.custom_events, {
 //            pager_changed: '_onPagerChanged',
@@ -49,6 +49,7 @@ odoo.define('hotel.RatesClientAction', function(require) {
             this.companyId = false;
             this.currentPricelist = false
             this.pricelist = []
+            this.showSidebar = true;
             this.state = false;
             this.active_ids = [];
             this.pager = false;
@@ -70,6 +71,9 @@ odoo.define('hotel.RatesClientAction', function(require) {
             var self = this;
             var _super = this._super.bind(this);
             var args = arguments;
+            this.currentPricelist = this.context.default_template_id ?? false;
+            this._onResize = this._onResize.bind(this);
+
 
             var def_control_panel = await this._rpc({
                 model: 'ir.model.data',
@@ -81,10 +85,13 @@ odoo.define('hotel.RatesClientAction', function(require) {
             })
             self.viewId = def_control_panel[1];
 
-            var def_active_ids = await self._getActiveIds();
+//            var def_active_ids = await self._getActiveIds();
 
             return self._getState().then(function() {
-                    if (self.pricelist && self.pricelist.length) {
+                    if(self.currentPricelist){
+                        self.intialPricelistName = self.pricelist.find(data=>data.id == self.currentPricelist).name
+                    }
+                    else if (self.pricelist && self.pricelist.length) {
                         self.currentPricelist = self.pricelist[0]["id"];
                         self.intialPricelistName = self.pricelist[0]["name"];
                     }
@@ -101,11 +108,18 @@ odoo.define('hotel.RatesClientAction', function(require) {
 //            await this.renderPager();
         },
 
+        _onResize:function(){
+               document.getElementById('sidebar').style.transform = this.showSidebar ? 'translateX(-100%)' : 'translateX(0%)';
+               this.showSidebar = !this.showSidebar;
+        },
+
         update_cp: function() {
             var self = this;
             this.$buttons = $(QWeb.render('rates_manager_control_panel_buttons', {
                 widget: {
-                    pricelist: self.pricelist
+                    pricelist: self.pricelist,
+                    currentTemplateName: self.intialPricelistName,
+                    currentTemplateId: self.currentPricelist
                 }
             }));
 
@@ -162,41 +176,25 @@ odoo.define('hotel.RatesClientAction', function(require) {
                 }
                 return state;
             });
-},
-
-//        renderPager: async function() {
-//            const currentMinimum = 1;
-//            const limit = defaultPagerSize;
-//            const size = this.pager_ids.length;
-//
-//            this.pager = new ComponentWrapper(this,Pager,{
-//                currentMinimum,
-//                limit,
-//                size
-//            });
-//
-//            await this.pager.mount(document.createDocumentFragment());
-//            const pagerContainer = Object.assign(document.createElement('span'), {
-//                className: 'o_rate_view_manager_pager float-right',
-//            });
-//            pagerContainer.appendChild(this.pager.el);
-//            this.$pager = pagerContainer;
-//
-//            this._controlPanelWrapper.el.querySelector('.o_cp_pager').append(pagerContainer);
-//        },
+       },
 
         onAddALineClicked:async function(ev){
             if(this.onClickAddALine){
                 ev.stopPropagation();
 
                 var self = this;
-                var columnValue = this.$el.find('.form-control').val()
+                let $input = this.$el.find('.configuration_input')
+                var columnValue = $input.val()
                 if(!columnValue || columnValue.trim() === ""){
+                    $input.css('border-color', 'red');
+                    setTimeout(function() {
+                        $input.css('border-color', ''); // Reset to default color
+                    }, 4000);
                     this.displayNotification({ title: _t("Input Field can't be Empty."), type: 'danger', message: _t("Please enter column name.") });
                     return
                 }
                 var type_of_fields = this.$el.find('#sqlDataTypes').val()
-                var mandatory = this.$el.find('#mandatory').val()
+                var mandatory = this.$el.find('#mandatory').val() == "true" ? true : false;
                 var sheet_id = this.selectedSheet
                 try{
                     let newTableId = await this._rpc({
@@ -241,9 +239,6 @@ odoo.define('hotel.RatesClientAction', function(require) {
             }
         },
 
-
-
-
         deleteSheet: function(ev) {
             ev.stopPropagation();
             var self = this
@@ -255,7 +250,7 @@ odoo.define('hotel.RatesClientAction', function(require) {
                         method: 'unlink',
                         args: [id],
                     })
-                    var self = this;
+//                    var self = this;
 //                    this.$pager.remove();
 //                    this.pager.destroy();
                     this._reloadContent()
@@ -268,11 +263,21 @@ odoo.define('hotel.RatesClientAction', function(require) {
             var self = this
             var id = $(ev.currentTarget).data('id');
             var oldSheetName = $(ev.currentTarget).data('name');
-            var $content = $('<div>').append($('<input>', {type: 'text', class: 'o_set_qty_input'}).val(oldSheetName));
+            var $content = $('<div>').append($('<input>', {type: 'text',placeholder:'Nokia sheet...', class: 'configuration_input'}).val(oldSheetName));
             this.dialog = new Dialog(this, {
             title: _t('Set New Sheet Name'),
-            buttons: [{text: _t('Update'), classes: 'btn-primary', close: true, click: function () {
-                var newSheetName = this.$content.find('.o_set_qty_input').val();
+            buttons: [{text: _t('Update'), classes: 'btn-primary', click: function () {
+
+                let $input = this.$content.find('.configuration_input')
+                let newSheetName = $input.val();
+                if (!newSheetName || newSheetName.trim() === "") {
+                    $input.css('border-color', 'red');
+                    setTimeout(function() {
+                        $input.css('border-color', '');
+                    }, 4000);
+                    this.displayNotification({ title: _t("Input Field can't be Empty."), type: 'danger', message: _t("Please enter column name.") });
+                    return
+                }
                 return this._rpc({
                         model: 'shop.floor.sheet',
                         method: 'write',
@@ -283,7 +288,8 @@ odoo.define('hotel.RatesClientAction', function(require) {
 //                        self.$pager.remove();
 //                        self.pager.destroy();
                         self._reloadContent()
-                    })
+                        self.dialog.close();
+                    }.bind(self))
             }},
             {text: _t('Discard'), close: true}],
             $content: $content,
@@ -291,31 +297,15 @@ odoo.define('hotel.RatesClientAction', function(require) {
             this.dialog.open();
         },
 
-
-
-//        _onPagerChanged: function(ev) {
-//            let {currentMinimum, limit} = ev.data;
-//            this.pager.update({
-//                currentMinimum,
-//                limit
-//            });
-//            this.currentMinimum = currentMinimum;
-//            this.limit = limit;
-//            currentMinimum = currentMinimum - 1;
-//            this.active_ids = this.pager_ids.slice(currentMinimum, currentMinimum + limit).map(i=>i.id);
-//            this._reloadContent();
-//        },
-
-
-
-
-        _reloadContent: function(days=14) {
+        _reloadContent: function() {
             var self = this;
 
-            return self._getState(days).then(function() {
-                if (self.pager_ids.length == 0) {
-                    self.$el.find('.o_rate_manager').replaceWith($(QWeb.render('rate_manager_nocontent_helper')));
-                } else {
+            return self._getState().then(function() {
+//                if (self.pager_ids.length == -1) {
+//                    self.$el.find('.sheet-component').replaceWith($(QWeb.render('rate_manager_nocontent_helper')));
+////                    self.$el.find('.o_rate_manager').append($(QWeb.render('rate_manager_nocontent_helper')));
+//                } else {
+                    self.intialPricelistName = self.pricelist[0]["name"]
                     var $content = $(QWeb.render('rate_manager', {
                         widget: {
                             'widget': self,
@@ -336,7 +326,7 @@ odoo.define('hotel.RatesClientAction', function(require) {
 //                            }
 //                        })
 //                    }
-                }
+//                }
 
             });
         },
@@ -370,7 +360,12 @@ odoo.define('hotel.RatesClientAction', function(require) {
         },
 
 
-        sadcreateRecord: function(ev) {
+        openTemplate:function(){
+            this.do_action('ciq_template_config_ext.shop_floor_template_action');
+        },
+
+
+        createRecord: function(ev) {
             ev.stopPropagation();
             var self = this;
             var id = $(ev.currentTarget).data('hotel_rate_id');
@@ -481,8 +476,45 @@ odoo.define('hotel.RatesClientAction', function(require) {
         },
 
     });
+
+//        _onPagerChanged: function(ev) {
+//            let {currentMinimum, limit} = ev.data;
+//            this.pager.update({
+//                currentMinimum,
+//                limit
+//            });
+//            this.currentMinimum = currentMinimum;
+//            this.limit = limit;
+//            currentMinimum = currentMinimum - 1;
+//            this.active_ids = this.pager_ids.slice(currentMinimum, currentMinimum + limit).map(i=>i.id);
+//            this._reloadContent();
+//        },
+
+//        renderPager: async function() {
+//            const currentMinimum = 1;
+//            const limit = defaultPagerSize;
+//            const size = this.pager_ids.length;
+//
+//            this.pager = new ComponentWrapper(this,Pager,{
+//                currentMinimum,
+//                limit,
+//                size
+//            });
+//
+//            await this.pager.mount(document.createDocumentFragment());
+//            const pagerContainer = Object.assign(document.createElement('span'), {
+//                className: 'o_rate_view_manager_pager float-right',
+//            });
+//            pagerContainer.appendChild(this.pager.el);
+//            this.$pager = pagerContainer;
+//
+//            this._controlPanelWrapper.el.querySelector('.o_cp_pager').append(pagerContainer);
+//        },
     core.action_registry.add('rates_view_manager_client_action', RatesClientAction);
 
     return RatesClientAction;
 
 })
+
+
+

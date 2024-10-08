@@ -64,7 +64,6 @@ class Template(models.Model):
         }
 
 
-
     @api.model
     def get_rate_view_state(self, currentpricelist=False, domain=None, pager_domain=None,
                             on_search=False):
@@ -110,10 +109,12 @@ class Template(models.Model):
         if not len(domain) or (len(domain) and not len(hotels_rec)):
             categ_ids = self.env['shop.floor.table'].search([('sheet_id.template_id', '=', currentpricelist)]).mapped(
                 'sheet_id')
-            categ_ids = categ_ids + remaining_categ_key
+            if categ_ids or remaining_categ_key:
+                categ_ids = categ_ids + remaining_categ_key
         else:
             categ_ids = hotels_rec.mapped('sheet_id')
-            categ_ids = categ_ids + remaining_categ_key
+            if categ_ids or remaining_categ_key:
+                categ_ids = categ_ids + remaining_categ_key
         if not on_search and not len(domain) and len(pager_domain[0][2]):
             pager_domain = safe_eval(str(pager_domain))
             pager_recordset = self.env['shop.floor.sheet'].search(pager_domain)
