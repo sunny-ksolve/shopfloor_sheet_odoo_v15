@@ -46,9 +46,8 @@ odoo.define('hotel.RatesClientAction', function(require) {
             this.action = action;
             this.context = action.context;
             this.domain = [];
+            this.initialPricelistName = "";
             this.companyId = false;
-            this.currentPricelist = false
-            this.pricelist = []
             this.showSidebar = true;
             this.state = false;
             this.active_ids = [];
@@ -56,25 +55,26 @@ odoo.define('hotel.RatesClientAction', function(require) {
             this.pager_ids = false;
             this.onSearch = false;
             this.currentWeekSlot = false;
-            this.intialPricelistName = false;
-            this.sheetName = '';
+            this.firstSheet = [];
+            this.currentSheetName = '';
+            this.currentSheetId = '';
             this.selectedSheet = false;
             this.table = [];
             this.onClickAddALine = false;
             this.mutex = new concurrency.Mutex();
             this.searchModelConfig.modelName = 'shop.floor.table';
-            this.currentMinimum = 0;
-            this.limit = 0;
+
+            this.defaultTemplateName = "";
+            this.currentPricelist = false
+            this.pricelist = []
         },
 
         willStart: async function() {
             var self = this;
             var _super = this._super.bind(this);
+            this._onResize = this._onResize.bind(this);
             var args = arguments;
             this.currentPricelist = this.context.default_template_id ?? false;
-            this._onResize = this._onResize.bind(this);
-
-
             var def_control_panel = await this._rpc({
                 model: 'ir.model.data',
                 method: 'check_object_reference',
@@ -85,49 +85,92 @@ odoo.define('hotel.RatesClientAction', function(require) {
             })
             self.viewId = def_control_panel[1];
 
-//            var def_active_ids = await self._getActiveIds();
 
-            return self._getState().then(function() {
+            return self._getState().then(async function() {
                     if(self.currentPricelist){
-                        self.intialPricelistName = self.pricelist.find(data=>data.id == self.currentPricelist).name
+                        self.defaultTemplateName = self.pricelist.find(data=>data.id == self.currentPricelist).name
                     }
                     else if (self.pricelist && self.pricelist.length) {
                         self.currentPricelist = self.pricelist[0]["id"];
-                        self.intialPricelistName = self.pricelist[0]["name"];
+                        self.defaultTemplateName = self.pricelist[0]["name"];
+                    }
+                    if(self.pager_ids.length){
+                        await self.getFirstSheetTables();
+                    }
+                    if(self.productsSidebar.length >= 1){
+                        self.currentSheetName = self.firstSheet.name
+                        self.currentSheetId = self.firstSheet.id
                     }
                     return _super.apply(self, args);
             });
         },
 
+        getFirstSheetTables:async function(){
+            const id = this.firstSheet.id
+            const name = this.firstSheet.name
+            try{
+                this.table = await this._rpc({
+                    model: 'shop.floor.sheet',
+                    method: 'get_table_inside_a_sheet',
+                    args: [id],
+                })
+                this.selectedSheet = true
+            }catch(error){
+                console.log(error)
+            }
+        },
+
         start: async function() {
             await this._super(...arguments);
-            if (this.pager_ids.length == 0) {
-                this.$el.find('.o_rate_manager').append($(QWeb.render('rate_manager_nocontent_helper')));
+            if (this.pricelist.length == 0) {
+                let $parent_view = this.$el.find('.o_rate_manager')
+                $parent_view.empty();
+                $parent_view.append($(QWeb.render('rate_manager_nocontent_helper')));
             }
             await this.update_cp();
-//            await this.renderPager();
         },
 
-        _onResize:function(){
-               document.getElementById('sidebar').style.transform = this.showSidebar ? 'translateX(-100%)' : 'translateX(0%)';
-               this.showSidebar = !this.showSidebar;
-        },
+       _getState:async function() {
+//            var self = this;
+            const domain = this.domain;
+            const pager_domain = [['id', 'in', this.active_ids]];
+            const currentPricelist = this.currentPricelist;
 
-        update_cp: function() {
+            const state = await this._rpc({
+                model: 'shop.floor.table',
+                method: 'get_rate_view_state',
+                args: [currentPricelist, domain, pager_domain, this.onSearch],
+            })
+            this.productsSidebar = state.products_sidebar;
+            this.pricelist = state.pricelist;
+            this.pager_ids = state.pager;
+            this.firstSheet = state.first_sheet
+            this.active_ids = state.pager.slice(0, defaultPagerSize).map(i=>i.id);
+            if (!this.pager_ids || this.onSearch) {
+                this.pager_ids = state.pager;
+                if (this.onSearch) {
+                    this.onSearch = false;
+                }
+            }
+       },
+
+       update_cp: function() {
             var self = this;
             this.$buttons = $(QWeb.render('rates_manager_control_panel_buttons', {
                 widget: {
                     pricelist: self.pricelist,
-                    currentTemplateName: self.intialPricelistName,
-                    currentTemplateId: self.currentPricelist
+                    currentTemplateName: self.defaultTemplateName,
                 }
             }));
 
             var $dropdown_caption = this.$buttons.find('.dropdown > .caption');
             $dropdown_caption.on('click', self._onClickDropDown.bind(self));
 
-            if (self.intialPricelistName)
-                $dropdown_caption.text(self.intialPricelistName);
+            var $redirectToTemplateButton = this.$buttons.find('.dropdown > #redirect_to_template');
+            $redirectToTemplateButton.on('click', self._redirectToTemplateListView.bind(self));
+
+//            if (self.defaultTemplateName)
+//                $dropdown_caption.text(self.defaultTemplateName);
 
             var $dropdown_list = this.$buttons.find('.dropdown >  .list > .item');
             $dropdown_list.on('click', self._onClickDropDownList.bind(self));
@@ -135,15 +178,11 @@ odoo.define('hotel.RatesClientAction', function(require) {
             if (self.currentPricelist) {
                 var elem = _.filter($dropdown_list, (elem)=>{
                     return $(elem).data('id') == self.currentPricelist;
-                }
-                )
+                })
 
                 if (elem.length)
                     $(elem).addClass('selected');
             }
-
-            var $open_rooms = this.$buttons.find(".o_select_open_rooms");
-            $open_rooms.on('click', self.openRooms.bind(self));
 
             return this.updateControlPanel({
                 title: _t('Shop Floor'),
@@ -152,31 +191,6 @@ odoo.define('hotel.RatesClientAction', function(require) {
                 },
             });
         },
-
-       _getState: function() {
-            var self = this;
-            var domain = this.domain;
-            var pager_domain = [['id', 'in', this.active_ids]];
-
-            return this._rpc({
-                model: 'shop.floor.table',
-                method: 'get_rate_view_state',
-                args: [self.currentPricelist, domain, pager_domain, this.onSearch],
-            }).then(function(state) {
-                self.companyId = state.company_id;
-                self.productsSidebar = state.products_sidebar;
-                self.pricelist = state.pricelist;
-                self.pager_ids = state.pager;
-                self.active_ids = state.pager.slice(0, defaultPagerSize).map(i=>i.id);
-                if (!self.pager_ids || self.onSearch) {
-                    self.pager_ids = state.pager;
-                    if (self.onSearch) {
-                        self.onSearch = false;
-                    }
-                }
-                return state;
-            });
-       },
 
         onAddALineClicked:async function(ev){
             if(this.onClickAddALine){
@@ -195,7 +209,7 @@ odoo.define('hotel.RatesClientAction', function(require) {
                 }
                 var type_of_fields = this.$el.find('#sqlDataTypes').val()
                 var mandatory = this.$el.find('#mandatory').val() == "true" ? true : false;
-                var sheet_id = this.selectedSheet
+                var sheet_id = this.currentSheetId
                 try{
                     let newTableId = await this._rpc({
                         model: 'shop.floor.table',
@@ -209,14 +223,23 @@ odoo.define('hotel.RatesClientAction', function(require) {
                     })
                     this.onClickAddALine = false
                     this.table = [...this.table,{'id': newTableId, 'column': columnValue, 'type_of_fields': type_of_fields, 'mandatory': mandatory}]
+//                    this._reloadContent()
+                    await this._getState()
+                    this._renderTableComponent()
                 }catch(e){
                     this.displayNotification({ title: _t("Error."), type: 'danger', message: e });
                 }
             }else{
                 this.onClickAddALine = true
+                this._renderTableComponent();
             }
-            this._reloadContent()
         },
+
+        _onResize:function(){
+               document.getElementById('sidebar').style.transform = this.showSidebar ? 'translateX(-100%)' : 'translateX(0%)';
+               this.showSidebar = !this.showSidebar;
+        },
+
         onCancleClicked:function(){
             this.onClickAddALine = false
             this._reloadContent()
@@ -225,14 +248,15 @@ odoo.define('hotel.RatesClientAction', function(require) {
         onSheetClick:async function(ev){
             const id = Number(ev.currentTarget.dataset["id"])
             const name = ev.currentTarget.dataset["name"]
-            this.sheetName = name
+            this.currentSheetName = name
+            this.currentSheetId = id
             try{
                 this.table = await this._rpc({
                     model: 'shop.floor.sheet',
                     method: 'get_table_inside_a_sheet',
                     args: [id],
                 })
-                this.selectedSheet = id
+                this.selectedSheet = true
                 this._reloadContent()
             }catch(error){
                 console.log(error)
@@ -253,7 +277,7 @@ odoo.define('hotel.RatesClientAction', function(require) {
 //                    var self = this;
 //                    this.$pager.remove();
 //                    this.pager.destroy();
-                    this._reloadContent()
+                    this._createFirstSheet()
                 },
             });
         },
@@ -287,6 +311,9 @@ odoo.define('hotel.RatesClientAction', function(require) {
                     }).then(function(){
 //                        self.$pager.remove();
 //                        self.pager.destroy();
+                        if(self.currentSheetId == id){
+                            self.currentSheetName = newSheetName
+                        }
                         self._reloadContent()
                         self.dialog.close();
                     }.bind(self))
@@ -299,36 +326,50 @@ odoo.define('hotel.RatesClientAction', function(require) {
 
         _reloadContent: function() {
             var self = this;
-
             return self._getState().then(function() {
-//                if (self.pager_ids.length == -1) {
-//                    self.$el.find('.sheet-component').replaceWith($(QWeb.render('rate_manager_nocontent_helper')));
-////                    self.$el.find('.o_rate_manager').append($(QWeb.render('rate_manager_nocontent_helper')));
-//                } else {
-                    self.intialPricelistName = self.pricelist[0]["name"]
+                    self.defaultTemplateName = self.pricelist[0]["name"]
                     var $content = $(QWeb.render('rate_manager', {
                         widget: {
                             'widget': self,
                             'productsSidebar': self.productsSidebar,
                             'currentPricelist': self.currentPricelist,
                             'selectedSheet':self.selectedSheet,
+                            'currentSheetName':self.currentSheetName,
+                            'currentSheetId':self.currentSheetId,
+                            'onClickAddALine':self.onClickAddALine,
+                            'table':self.table,
                         }
                     }));
                     $('.o_rate_manager').replaceWith($content);
-//                    if (!$(self.$pager).find(".o_pager").length) {
-//                        self.$pager.remove();
-//                        self.pager.destroy();
-//                        self.renderPager();
-//                        self._onPagerChanged({
-//                            'data': {
-//                                'currentMinimum': self.currentMinimum,
-//                                'limit': self.limit
-//                            }
-//                        })
-//                    }
-//                }
-
             });
+        },
+
+        _renderTableComponent: function(){
+            var $content = $(QWeb.render('SheetComponent', {
+                        widget: {
+                            'currentSheetName':this.currentSheetName,
+                            'onClickAddALine':this.onClickAddALine,
+                            'table':this.table,
+                        }
+                    }));
+            $('.sheet-component').replaceWith($content);
+        },
+
+        _renderSheetAndTableComponent:function(){
+            var self = this
+            var $content = $(QWeb.render('rate_manager', {
+                        widget: {
+                            'widget': self,
+                            'productsSidebar': self.productsSidebar,
+                            'currentPricelist': self.currentPricelist,
+                            'selectedSheet':self.selectedSheet,
+                            'currentSheetName':self.currentSheetName,
+                            'currentSheetId':self.currentSheetId,
+                            'onClickAddALine':self.onClickAddALine,
+                            'table':self.table,
+                        }
+                    }));
+            $('.o_rate_manager').replaceWith($content);
         },
 
 
@@ -336,14 +377,37 @@ odoo.define('hotel.RatesClientAction', function(require) {
             $(ev.currentTarget).parent().toggleClass('open');
         },
 
+        _redirectToTemplateListView : function(ev){
+             this.do_action('ciq_template_config_ext.shop_floor_template_action');
+        },
+
         _onClickDropDownList: function(ev) {
             $('.dropdown > .list > .item').removeClass('selected');
             $(ev.currentTarget).addClass('selected').parent().parent().removeClass('open').children('.caption').text($(ev.currentTarget).text());
+            const clickedPricelistId = $(ev.currentTarget).data('id');
+            if(this.currentPricelist == clickedPricelistId){
+                this.displayNotification({ title: _t("Info"), type: 'info', message: _t("Template is Already Selected") });
+                return;
+            }
             this.currentPricelist = $(ev.currentTarget).data('id');
-            var self = this;
 //            this.$pager.remove();
 //            this.pager.destroy();
-            this._reloadContent()
+            var self = this
+            this._getState().then(async function() {
+                    if(self.pager_ids.length){
+                       await self.getFirstSheetTables();
+                    }else{
+                        self.table = [];
+                        self.currentSheetName = ""
+                        self.currentSheetId = ""
+                        self.selectedSheet = false
+                    }
+                    if(self.productsSidebar.length >= 1){
+                        self.currentSheetName = self.firstSheet.name
+                        self.currentSheetId = self.firstSheet.id
+                    }
+                    self._renderSheetAndTableComponent()
+            });
         },
 
 
@@ -355,59 +419,27 @@ odoo.define('hotel.RatesClientAction', function(require) {
 
             this.do_action('ciq_template_config_ext.shop_floor_create_new_sheet_wizard',{
                 additional_context: fullContext,
-                on_close: this._reloadContent.bind(this)
+                on_close: this._createFirstSheet.bind(this)
             });
         },
 
-
-        openTemplate:function(){
-            this.do_action('ciq_template_config_ext.shop_floor_template_action');
-        },
-
-
-        createRecord: function(ev) {
-            ev.stopPropagation();
-            var self = this;
-            var id = $(ev.currentTarget).data('hotel_rate_id');
-            var value = Number($(ev.currentTarget).val()).toFixed(2);
-            if (isNaN(value)) {
-                self.do_notify(_t("Invalid Value"), _t('Entered Value is not a Correct Number ' + (value) + ' .'));
-            } else if (value <= 0) {
-                self.do_notify(_t("Invalid Value"), _t('Sales Price should be greater then zero ' + (value) + ' .'));
-            } else {
-                if (id) {
-                  if($($(ev.currentTarget)).hasClass("input_green")){
-                    return this._rpc({
-                        model: 'hotel.rates',
-                        method: 'write',
-                        args: [id, {
-                            'sales_price': value,
-                        }],
-                    })
-                  }else{
-                      self.do_notify(_t("You can not able to update price as it is already booked/closed"));
-                      $(ev.currentTarget)[0].value = $(ev.currentTarget)[0].defaultValue
-                  }
-                } else {
-                    return this._rpc({
-                        model: 'hotel.rates',
-                        method: 'create',
-                        args: [{
-                            product_id: $(ev.currentTarget).data('product_id'),
-                            categ_id: $(ev.currentTarget).data('product_categ_id'),
-                            pricelist_id: this.currentPricelist,
-                            sales_price: value,
-                            date: $(ev.currentTarget).data('date'),
-                            availability: 'available'
-                        }],
-                    }).then(function(res) {
-                        if (res) {
-                            $(ev.currentTarget).addClass("input_green");
-                            $(ev.currentTarget).attr('data-hotel_rate_id', res);
-                        }
-                    })
-                }
-            }
+        _createFirstSheet: function(){
+            var self = this
+            this._getState().then(async function() {
+                    if(self.pager_ids.length){
+                       await self.getFirstSheetTables();
+                    }else{
+                        self.table = [];
+                        self.currentSheetName = ""
+                        self.currentSheetId = ""
+                        self.selectedSheet = false
+                    }
+                    if(self.productsSidebar.length >= 1){
+                        self.currentSheetName = self.firstSheet.name
+                        self.currentSheetId = self.firstSheet.id
+                    }
+                    self._renderSheetAndTableComponent()
+            });
         },
 
 
@@ -439,56 +471,7 @@ odoo.define('hotel.RatesClientAction', function(require) {
             }
         },
 
-
-        printReportXlsx: function() {
-            var self = this;
-            self._reloadContent().then(function() {
-                var startDate = self.startDate.format("YYYY-MM-DD");
-                var endDate = self.endDate.format("YYYY-MM-DD");
-                self._rpc({
-                    model: 'hotel.rates',
-                    method: 'print_xlsx',
-                    args: ['', {
-                        'productsSidebar': self.productsSidebar,
-                        'startDate': startDate,
-                        'endDate': endDate
-                    }],
-                }).then(function(action) {
-                    return self.do_action(action);
-                });
-            });
-        },
-
-
-        _getActiveIds: function(days=14) {
-            var self = this;
-            var domain = this.domain;
-            var pager_domain = [['id', 'in', this.active_ids]];
-            return this._rpc({
-                model: 'shop.floor.table',
-                method: 'get_active_ids',
-                args: [self.currentPricelist, domain],
-            }).then(function(state) {
-                self.pager_ids = state.pager;
-                self.active_ids = state.pager.slice(0, defaultPagerSize).map(i=>i.id);
-                return state;
-            });
-        },
-
     });
-
-//        _onPagerChanged: function(ev) {
-//            let {currentMinimum, limit} = ev.data;
-//            this.pager.update({
-//                currentMinimum,
-//                limit
-//            });
-//            this.currentMinimum = currentMinimum;
-//            this.limit = limit;
-//            currentMinimum = currentMinimum - 1;
-//            this.active_ids = this.pager_ids.slice(currentMinimum, currentMinimum + limit).map(i=>i.id);
-//            this._reloadContent();
-//        },
 
 //        renderPager: async function() {
 //            const currentMinimum = 1;

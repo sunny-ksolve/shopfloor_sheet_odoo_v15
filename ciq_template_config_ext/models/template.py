@@ -3,6 +3,7 @@ from odoo import api, fields, models, _
 
 class Template(models.Model):
     _name = 'shop.floor.template'
+    _rec_name = 'template_name'
 
     @api.model
     def _default_user(self):

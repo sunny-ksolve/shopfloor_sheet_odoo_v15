@@ -65,7 +65,7 @@ class Template(models.Model):
 
 
     @api.model
-    def get_rate_view_state(self, currentpricelist=False, domain=None, pager_domain=None,
+    def get_rate_view_state1(self, currentpricelist=False, domain=None, pager_domain=None,
                             on_search=False):
         if pager_domain is None:
             pager_domain = []
@@ -175,4 +175,42 @@ class Template(models.Model):
             'pager': total_children_ids,
             'pricelist': pricelist_data,
             'products_sidebar': data_lines,
+        }
+
+    @api.model
+    def get_rate_view_state(self, selectedTemplate=False, domain=None, pager_domain=None,
+                            on_search=False):
+        if pager_domain is None:
+            pager_domain = []
+        if domain is None:
+            domain = []
+        sheet_lines = []
+        domain = safe_eval(str(domain))
+        sheet_ids = []
+        sheets = []
+
+        templates = self.env['shop.floor.template'].search([]).sorted(lambda x: x.id)
+        templates_data = [{'id': rec.id, 'name': rec.template_name} for rec in templates]
+
+        if len(templates) and not selectedTemplate:
+            selectedTemplate = templates[0].id
+
+        if len(templates):
+            sheets = self.env['shop.floor.sheet'].search([('template_id','=',selectedTemplate)] + domain)
+
+        for sheet in sheets:
+            sheet_data = {
+                'sheet': {'id': sheet.id, 'name': sheet.sheet_name}
+            }
+            sheet_ids += sheet.ids
+            sheet_lines.append(sheet_data)
+
+        total_sheet_ids = [{'id': rec} for rec in sheet_ids]
+        first_sheet = sheet_lines[0].get('sheet') if len(sheet_lines) else {}
+
+        return {
+            'pager': total_sheet_ids,
+            'pricelist': templates_data,
+            'products_sidebar': sheet_lines,
+            'first_sheet':first_sheet,
         }

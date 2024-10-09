@@ -2,6 +2,8 @@ from odoo import api, fields, models, _
 
 class Template(models.Model):
     _name = 'shop.floor.sheet'
+    _rec_name = 'sheet_name'
+
 
     sheet_name = fields.Char(string="Name", required=True)
     template_id = fields.Many2one('shop.floor.template',string="Template")
