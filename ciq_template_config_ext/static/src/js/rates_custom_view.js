@@ -248,14 +248,18 @@ odoo.define('hotel.RatesClientAction', function(require) {
         onSheetClick:async function(ev){
             const id = Number(ev.currentTarget.dataset["id"])
             const name = ev.currentTarget.dataset["name"]
-            this.currentSheetName = name
-            this.currentSheetId = id
+            if(this.currentSheetId == id){
+                 this.displayNotification({ title: _t("Info"), type: 'info', message: _t("Sheet is Already Selected") });
+                 return;
+            }
             try{
                 this.table = await this._rpc({
                     model: 'shop.floor.sheet',
                     method: 'get_table_inside_a_sheet',
                     args: [id],
                 })
+                this.currentSheetName = name
+                this.currentSheetId = id
                 this.selectedSheet = true
                 this._reloadContent()
             }catch(error){
@@ -268,16 +272,24 @@ odoo.define('hotel.RatesClientAction', function(require) {
             var self = this
             var id = $(ev.currentTarget).data('id');
             Dialog.confirm(self, _t("Are you sure you want to delete this record?"), {
-                confirm_callback: ()=> {
-                    this._rpc({
-                        model: 'shop.floor.sheet',
-                        method: 'unlink',
-                        args: [id],
-                    })
-//                    var self = this;
-//                    this.$pager.remove();
-//                    this.pager.destroy();
-                    this._createFirstSheet()
+                confirm_callback: async ()=> {
+                    try{
+                        await this._rpc({
+                            model: 'shop.floor.sheet',
+                            method: 'unlink',
+                            args: [id],
+                        })
+                        const index = this.productsSidebar.findIndex(data=>data['sheet'].id == id)
+                        this.productsSidebar.splice(index,1)
+                        if(this.currentSheetId != id){
+                            this._renderSheetComponent();
+                        }else{
+                              this._createFirstSheet()
+                        }
+                    }catch(error){
+                        console.log(error)
+
+                    }
                 },
             });
         },
@@ -344,16 +356,28 @@ odoo.define('hotel.RatesClientAction', function(require) {
             });
         },
 
+        _renderSheetComponent: function(){
+            var $content = $(QWeb.render('shopFloor_sidebar', {
+                        widget: {
+                            'productsSidebar':this.productsSidebar,
+                            'currentSheetId':this.currentSheetId,
+                        }
+                    }));
+            $('#sidebar').replaceWith($content);
+        },
+
+
         _renderTableComponent: function(){
-            var $content = $(QWeb.render('SheetComponent', {
+            var $content = $(QWeb.render('tableComponent', {
                         widget: {
                             'currentSheetName':this.currentSheetName,
                             'onClickAddALine':this.onClickAddALine,
                             'table':this.table,
                         }
                     }));
-            $('.sheet-component').replaceWith($content);
+            $('.table-component').replaceWith($content);
         },
+
 
         _renderSheetAndTableComponent:function(){
             var self = this
@@ -361,7 +385,6 @@ odoo.define('hotel.RatesClientAction', function(require) {
                         widget: {
                             'widget': self,
                             'productsSidebar': self.productsSidebar,
-                            'currentPricelist': self.currentPricelist,
                             'selectedSheet':self.selectedSheet,
                             'currentSheetName':self.currentSheetName,
                             'currentSheetId':self.currentSheetId,
@@ -419,9 +442,19 @@ odoo.define('hotel.RatesClientAction', function(require) {
 
             this.do_action('ciq_template_config_ext.shop_floor_create_new_sheet_wizard',{
                 additional_context: fullContext,
-                on_close: this._createFirstSheet.bind(this)
+                on_close: (result) => {
+        if (result && result.confirmed) {
+            console.log("Confirmed button clicked");
+        } else if (result && result.canceled) {
+            console.log("Cancel button clicked");
+        } else {
+            console.log("Wizard closed via cross or other means");
+        }
+    }
             });
         },
+
+
 
         _createFirstSheet: function(){
             var self = this
