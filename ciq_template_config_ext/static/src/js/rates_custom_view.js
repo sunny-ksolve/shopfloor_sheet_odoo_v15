@@ -185,7 +185,7 @@ odoo.define('hotel.RatesClientAction', function(require) {
             }
 
             return this.updateControlPanel({
-                title: _t('Shop Floor'),
+                title: _t('Build Templates'),
                 cp_content: {
                     $buttons: this.$buttons,
                 },
@@ -491,17 +491,18 @@ odoo.define('hotel.RatesClientAction', function(require) {
 //            this.$pager.remove();
 //            this.pager.destroy();
             this.onSearch = true;
-            if (!this.domain.length) {
-                self._getActiveIds().then(function() {
-                    self.onSearch = false;
-//                    self._reloadContent().then(function() {
-//                        self.renderPager();
-//                    });
-                    self._reloadContent()
-                })
-            } else {
-                self._reloadContent()
-            }
+//            if (!this.domain.length) {
+//                self._getActiveIds().then(function() {
+//                    self.onSearch = false;
+////                    self._reloadContent().then(function() {
+////                        self.renderPager();
+////                    });
+//                    self._reloadContent()
+//                })
+//            } else {
+//                self._reloadContent()
+//            }
+            self._reloadContent()
         },
 
     });

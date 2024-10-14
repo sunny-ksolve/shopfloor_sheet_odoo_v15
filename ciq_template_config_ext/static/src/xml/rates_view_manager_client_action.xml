@@ -5,33 +5,31 @@
         <t t-set="table" t-value="widget.table"/>
         <t t-set="currentSheetName" t-value="widget.currentSheetName"/>
         <t t-set="onClickAddALine" t-value="widget.onClickAddALine"/>
-      <div class="table-component" style="flex:1;padding:20px 40px;">
-          <div class="d-flex flex-column align-items-center" style="font-size:18px; gap:20px;">
+      <div class="table-component" style="flex:1;padding: 1% 1%;">
+          <div class="d-flex flex-column align-items-center" style="font-size:18px; gap:5px;">
 
-              <span class="text-center" style=" padding:0.75rem; font-size:24px">Sheet: <span class="text-capitalize" style="font-weight:bold;" t-esc="currentSheetName" /></span>
-
+              <span class="text-center" style="font-weight: 600; padding:0.75rem; font-size:20px">
+                  Sheet: <span t-esc="currentSheetName" />
+              </span>
               <div style="width:100%;">
 
+
               <div style="align-self:start;">
-                    <button type="button" class="bg-primary border-0 o_add_a_line_button"
-                        style="margin-bottom: 10px;
-                        padding:0.75rem;
-                        font-size: 20px;
-                        border-radius: 6px;
-                        width:200px;">
+                    <button type="button" class="bg-info border-0 o_add_a_line_button"
+                        style="margin-bottom: 1%;
+                            font-size: 20px;
+                            border-radius: 20px;
+                            width: auto;">
                         <t t-esc="onClickAddALine ? 'Save' : 'Add a line'"/>
 
                     </button>
-                    <button t-if="onClickAddALine" type="button" class="border-0 o_cancle_button"
-                            style="margin-bottom: 10px;
-                            padding:0.75rem;
+                    <button t-if="onClickAddALine" type="button" class="bg-danger border-0 o_cancle_button"
+                        style="margin-bottom: 1%;
                             font-size: 20px;
-                            border-radius: 6px;
-                            color: white;
-                            background: #6c757d;
-                            width:200px;">
-                            Cancle
-                        </button>
+                            border-radius: 20px;
+                            width: auto;">
+                            Cancel
+                    </button>
               </div>
 
             <div class="custom-table">
@@ -88,16 +86,14 @@
 
 </t>
 
-    <t t-name="shopFloor_sidebar">
-        <t t-set="productsSidebar" t-value="widget.productsSidebar"/>
-        <t t-set="currentSheetId" t-value="widget.currentSheetId"/>
+    <t t-name="housekeeping_sidebar">
         <div  id="sidebar" class="o_sidebar d-flex flex-column bg-light shadow-sm p-3" style="gap:1rem;justify-content: space-between;">
             <t t-if="productsSidebar.length == 0" t-call="sheet_nocontent_helper"/>
             <t t-else="">
                     <div id="list-group" class="list-group list-group-flush" style="gap:1rem;overflow-y:auto;flex:1;">
                         <t t-foreach="productsSidebar" t-as="productSidebar" t-key="productSidebar.sheet.id" >
                         <t t-set="class" t-value="currentSheetId == productSidebar.sheet.id ? 'active' : ''"/>
-                            <div t-if="productsSidebar" style="font-size: 18px;font-weight: 500;color: #344054; gap:10px; padding:0px 20px; position: relative; justify-content:center;"
+                            <div t-if="widget.productsSidebar" style="font-size: 18px;font-weight: 500;color: #344054; gap:10px; padding:0px 20px; position: relative; justify-content:center;"
                                   t-att-data-id="productSidebar.sheet.id" t-att-data-name="productSidebar.sheet.name"
                                   t-attf-class="hello list-group-items list-group-item-action text-start #{class}">
 
@@ -119,11 +115,11 @@
                         </t>
                     </div>
             </t>
-            <button type="button" class="bg-primary o_new_sheet_create_button" style="
-                margin-bottom: 10px;
+            <button type="button" class="bg-info o_new_sheet_create_button" style="
+                margin-bottom: 1px;
                 font-size: 20px;
-                border-radius: 6px;
-                height: 60px;
+                border-radius: 24px;
+                height: 40px;
                 border: 1px solid grey;">
                 Create New Sheet
             </button>
@@ -133,8 +129,11 @@
 
     <t t-name="rate_manager">
             <div class="o_rate_manager">
+                <t t-set="productsSidebar" t-value="widget.productsSidebar"/>
+                <t t-set="currentPricelist" t-value="widget.currentPricelist"/>
                 <t t-set="selectedSheet" t-value="widget.selectedSheet"/>
-                <t t-call="shopFloor_sidebar"/>
+                <t t-set="currentSheetId" t-value="widget.currentSheetId"/>
+                <t t-call="housekeeping_sidebar"/>
                 <t t-if="widget.selectedSheet">
                     <t t-call="tableComponent"/>
                 </t>

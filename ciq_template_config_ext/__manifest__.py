@@ -7,7 +7,7 @@
     'category': 'Tools',
     'website': "www.nokia.com",
     'description': 'Nokia ngDCM CIQ Configuration Extension',
-    'depends': ["base", "base_setup", "mail"],
+    'depends': ["base", "base_setup", "mail", "ngdcm_app"],
     "data": [
         'security/ir.model.access.csv',
         'views/sheet.xml',
