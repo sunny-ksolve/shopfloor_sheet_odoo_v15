@@ -1,0 +1,197 @@
+// .o_sidebar {
+//     height: 100%;
+//     width: 100%;
+//     min-width:200px;
+//     max-width:300px;
+//     flex: 1;
+//     border-right: 1px solid #dee2e6;
+//     transition: transform 0.3s ease; /* Smooth transition */
+//     transform: translateX(0); /* Sidebar visible by default */
+// }
+// @media (min-width: 768px) {
+//     .o_sidebar{
+//         transform: translateX(0);
+//     }
+// }
+//
+// @media (max-width: 768px) {
+//     .o_sidebar {
+//         transform: translateX(-100%); /* Hide sidebar on small screens */
+//         position: absolute;
+//         z-index: 1001;
+//         width: 100%;
+//         background:white;
+//     }
+// }
+//
+// @media (max-width: 1000px) {
+//     .o_sidebar {
+//         max-width:250px;
+//     }
+//     #floor_card{
+//         padding:48px 40px;
+//     }
+// }
+//
+// .sidebar-toggle-btn {
+//     position: fixed;
+//     top: 50px;
+//     right:10px;
+//     color: black;
+//     border: none;
+//     padding: 10px;
+//     cursor: pointer;
+//     z-index: 2;
+//     display:none;
+//     background:none;
+// }
+//
+// @media (max-width: 768px) {
+//     .sidebar-toggle-btn {
+//         display: block; /* Show toggle button on smaller screens */
+//     }
+// }
+//
+// /* Other existing styles */
+// .o_sidebar_header {
+//     padding: 10px 0;
+//     border-bottom: 1px solid #dee2e6;
+// }
+//
+// .o_nocontent_view {
+//     flex-grow: 1;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     background-image: radial-gradient(at 50% 50%, white 0px, rgba(255, 255, 255, 0.5) 100%);
+// }
+//
+// .o_view_nocontent_smiling_face1 {
+//     align-items: center;
+//     display: flex;
+//     flex-direction: column;
+// }
+//
+//
+// .o_sidebar .list-group .list-group-item {
+//     display: flex;
+//     align-items: center;
+//     border-radius:6px;
+//     background-color: #f8f9fa;
+// }
+//
+// .activeFloor{
+//     background-color: #d4ebfa !important;
+// }
+//
+// .o_sidebar .list-group .list-group-item:hover {
+//     cursor: pointer;
+//     background-color: #d4ebfa;
+// }
+//
+//
+// /* Scrollbar styles */
+// #list-group::-webkit-scrollbar {
+//     width: 4px; /* Width of the scrollbar */
+// }
+//
+// #list-group::-webkit-scrollbar-thumb {
+//     background-color: #dacaca; /* Color of the scrollbar handle */
+//     border-radius: 6px; /* Rounded corners */
+// }
+//
+// /* Scrollbar styles */
+// #floor_card::-webkit-scrollbar {
+//     width: 4px; /* Width of the scrollbar */
+// }
+//
+// #floor_card::-webkit-scrollbar-thumb {
+//     background-color: #dacaca; /* Color of the scrollbar handle */
+//     border-radius: 6px; /* Rounded corners */
+// }
+//
+// #row::-webkit-scrollbar {
+//     width: 6px; /* Width of the scrollbar */
+// }
+//
+// #row::-webkit-scrollbar-thumb {
+//     background-color: #dacaca; /* Color of the scrollbar handle */
+//     border-radius: 6px; /* Rounded corners */
+// }
+//
+//
+// /* Popup animation */
+// @keyframes popupAnimation {
+//   0% {
+//     transform: scale(0);
+//   }
+//   100% {
+//     transform: scale(1);
+//   }
+//
+// }
+//
+// .openModal{
+//   transform: scale(0);
+//   animation: popupAnimation 0.4s forwards ease;
+//
+//     }
+//
+// .floor_dropdown{
+//     background: #71639E;
+// }
+//
+// .hover:hover{
+//     background:#f0f5f0;
+// }
+//
+// .floorDropdownIcon{
+//     width: 50px;
+//     height: 50px;
+//     vertical-align:middle;
+//     fill: currentColor;
+//     overflow: hidden;
+//     color:white;
+// }
+//
+// .showFloor{
+//     transform:rotateX(0deg)
+// }
+// .hideFloor{
+//     transform:rotateX(180deg)
+// }
+//
+// .room_container{
+//     display: grid;
+//     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+//     gap:30px;
+//     }
+//
+// .rooms{
+//     border:1px solid #dee2e6;
+//     max-width:270px;
+//     height:245px;
+//     border-radius:8px;
+//     padding:24px 16px;
+//     gap:16px;
+//     justify-content:space-around;
+//
+//     }
+//
+// .rooms:hover{
+//     border:1px solid #bbbec1;
+//     }
+//
+
+.pricelist_item {
+  padding: 11px 24px;
+  cursor: pointer;
+}
+
+.pricelist_item.selected {
+  font-weight: bold;
+}
+
+.pricelist_item:hover {
+  background-color: rgb(83, 161, 214) !important;
+}

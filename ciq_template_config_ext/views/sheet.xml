@@ -3,6 +3,12 @@
 
     <menuitem id="shop_floor_menu_root" name="Configuration" sequence="12"/>
 
+    <record id="shop_floor_configuration_action" model="ir.actions.client">
+        <field name="name">Configuration</field>
+        <field name="tag">configuration</field>
+    </record>
+
+
     <record id="shop_floor_js_view_action" model="ir.actions.client">
         <field name="res_model">shop.floor.table</field>
         <field name="name">Config Template</field>
@@ -112,13 +118,21 @@
               parent="shop_floor_menu_root" action="shop_floor_sheet_action"
               sequence="2"/>
 
+    <menuitem id="shop_floor_configuration"
+              name="configuration"
+              parent="shop_floor_menu_root" action="shop_floor_configuration_action"
+              sequence="2"/>
+
     <menuitem id="shop_floor_table"
               name="Tables"
               parent="shop_floor_menu_root" action="shop_floor_table_action"
               sequence="3"/>
 
     <menuitem id="js_view"
-              name="configuration"
+              name="configuration1"
               parent="shop_floor_menu_root" action="shop_floor_js_view_action"
               sequence="4"/>
+
+
+
 </odoo>

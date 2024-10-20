@@ -1,4 +1,4 @@
-odoo.define('hotel.RatesClientAction', function(require) {
+odoo.define('shop_floor.configuration', function(require) {
     'use strict';
 
     const {ComponentWrapper} = require('web.OwlCompatibility');
@@ -506,26 +506,6 @@ odoo.define('hotel.RatesClientAction', function(require) {
 
     });
 
-//        renderPager: async function() {
-//            const currentMinimum = 1;
-//            const limit = defaultPagerSize;
-//            const size = this.pager_ids.length;
-//
-//            this.pager = new ComponentWrapper(this,Pager,{
-//                currentMinimum,
-//                limit,
-//                size
-//            });
-//
-//            await this.pager.mount(document.createDocumentFragment());
-//            const pagerContainer = Object.assign(document.createElement('span'), {
-//                className: 'o_rate_view_manager_pager float-right',
-//            });
-//            pagerContainer.appendChild(this.pager.el);
-//            this.$pager = pagerContainer;
-//
-//            this._controlPanelWrapper.el.querySelector('.o_cp_pager').append(pagerContainer);
-//        },
     core.action_registry.add('rates_view_manager_client_action', RatesClientAction);
 
     return RatesClientAction;

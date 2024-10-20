@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+  <t t-name="configuration" owl="1">
+
+      <div style="height: 100%;display: flex;flex-direction: column;">
+        <t t-name="rates_manager_control_panel_buttons" owl="1">
+                    <div class="d-flex w-100 p-2 " style="min-width: 650px; gap:10px;">
+                        <t t-if="state.pricelist.length != 0">
+                            <button type="button" class="sidebar-toggle-btn" t-on-click="_onResize">
+                                <i class="fa fa-bars"/>
+                            </button>
+                        </t>
+                        <div class="d-flex" style="max-height: 40px;">
+                            <Dropdown togglerClass="'border-0 p-0'" >
+                                <t t-set-slot="toggler" class="border-0">
+                                      <button t-if="!state.defaultTemplateName" id="redirect_to_template" type="button" class="btn btn-light active text-truncate px-3" style="border-radius:0.25rem; border:1px solid gray;">Select a Pricelist</button>
+                                      <button t-else="state.defaultTemplateName" type="button" class="btn btn-light active caption text-truncate px-3" style="border-radius:0.25rem; border:1px solid gray;"><t t-esc="state.defaultTemplateName"/></button>
+                                </t>
+                                <t t-foreach="state.pricelist" t-as="pricelist" t-key="pricelist.id">
+                                    <DropdownItem t-on-dropdown-item-selected="()=>_onClickDropDownList(pricelist.id,pricelist.name)"
+                                    class="pricelist_item text-truncate" style="color:#000000"  t-att-class="{ selected: state.currentPricelist == pricelist.id }" t-esc="pricelist.name"/>
+                                </t>
+                            </Dropdown>
+                        </div>
+                    </div>
+                </t>
+        <div class="o_rate_manager mt-4">
+            <t t-if="state.pricelist.length != 0">
+                <t t-name="shopFloor_sidebar">
+                <div  id="sidebar" class="o_sidebar d-flex flex-column bg-light shadow-sm px-3" style="gap:1rem;justify-content: space-between;">
+                    <t t-if="state.productsSidebar.length == 0">
+                        <t t-name="sheet_nocontent_helper">
+                            <div class="shop_floor_o_view_nocontent">
+                                <div class="o_nocontent_help">
+                                    <p class="o_view_nocontent_smiling_face1">
+                                        <img t-att-src="'/web/static/img/smiling_face.svg'" alt="Smiling Face" width="120px"
+                                                 height="140px"/>
+                                        <span>No sheet is available</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </t>
+                    </t>
+                    <t t-else="">
+                            <div id="list-group" class="list-group list-group-flush" style="gap:1rem;overflow-y:auto;flex:1;">
+                                <t t-foreach="state.productsSidebar" t-as="productSidebar" t-key="productSidebar.sheet.id" >
+                                <t t-set="class" t-value="state.currentSheetId == productSidebar.sheet.id ? 'active' : ''"/>
+                                    <div t-if="state.productsSidebar" style="font-size: 18px;font-weight: 500;color: #344054; gap:10px; padding:0px 20px; position: relative; justify-content:center;"
+                                          t-att-data-id="productSidebar.sheet.id" t-att-data-name="productSidebar.sheet.name"
+                                          class="list-group-items list-group-item-action text-start "
+                                          t-att-class="state.currentSheetId == productSidebar.sheet.id ? 'active' : ''"
+                                         t-on-click="onSheetClick"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             style="width: 15px; height: 15px;vertical-align: middle;fill: currentColor;overflow: hidden; color:grey;"
+                                             viewBox="0 0 384 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+                                            <path d="M64 464c-8.8 0-16-7.2-16-16L48 64c0-8.8 7.2-16 16-16l160 0 0 80c0 17.7 14.3 32 32 32l80 0 0 288c0 8.8-7.2 16-16 16L64 464zM64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-293.5c0-17-6.7-33.3-18.7-45.3L274.7 18.7C262.7 6.7 246.5 0 229.5 0L64 0zm56 256c-13.3 0-24 10.7-24 24s10.7 24 24 24l144 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-144 0zm0 96c-13.3 0-24 10.7-24 24s10.7 24 24 24l144 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-144 0z"/>
+                                        </svg>
+                                        <span class="text-truncate" style="width:160px;" t-esc="productSidebar.sheet.name"/>
+
+                                        <button type="button" class="edit-button" t-att-data-id="productSidebar.sheet.id" t-att-data-name="productSidebar.sheet.name" t-on-click="editSheet">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+
+                                        <button type="button" class="delete-button" t-att-data-id="productSidebar.sheet.id" t-att-data-name="productSidebar.sheet.name" t-on-click="deleteSheet">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </t>
+                            </div>
+                    </t>
+                    <button type="button" class="bg-primary o_new_sheet_create_button" style="
+                        margin-bottom: 10px;
+                        font-size: 20px;
+                        border-radius: 6px;
+                        height: 60px;
+                        border: 1px solid grey;">
+                        Create New Sheet
+                    </button>
+                </div>
+            </t>
+                <t t-if="state.selectedSheet">
+                <t t-name="tableComponent">
+                    <t t-set="table" t-value="state.table"/>
+                    <t t-set="currentSheetName" t-value="state.currentSheetName"/>
+                    <t t-set="onClickAddALine" t-value="state.onClickAddALine"/>
+                    <div class="table-component px-5" style="flex:1;">
+                      <div class="d-flex flex-column align-items-center" style="font-size:18px; gap:20px;">
+
+                          <span class="text-center" style=" padding:0.75rem; font-size:24px">Sheet: <span class="text-capitalize" style="font-weight:bold;" t-esc="currentSheetName" /></span>
+
+                          <div style="width:100%;">
+
+                          <div style="align-self:start;">
+                                <button type="button" class="bg-primary border-0 o_add_a_line_button"
+                                        t-on-click="onAddALineClicked"
+                                    style="margin-bottom: 10px;
+                                    padding:0.75rem;
+                                    font-size: 20px;
+                                    border-radius: 6px;
+                                    width:200px;">
+                                    <t t-esc="onClickAddALine ? 'Save' : 'Add a line'"/>
+
+                                </button>
+                                <button t-if="onClickAddALine" type="button" class="border-0 o_cancle_button"
+                                        t-on-click="onCancleClicked"
+                                        style="margin-bottom: 10px;
+                                        padding:0.75rem;
+                                        font-size: 20px;
+                                        border-radius: 6px;
+                                        color: white;
+                                        background: #6c757d;
+                                        width:200px;">
+                                        Cancle
+                                    </button>
+                          </div>
+
+                        <div class="custom-table">
+                            <div class="custom-table-header d-flex">
+                            <div>Column</div>
+                            <div>Type</div>
+                            <div>Mandatory</div>
+                        </div>
+                            <div id="table_body" style="max-height:40dvh; overflow-y:scroll;">
+                                <t t-if="onClickAddALine">
+                                    <form class="custom-table-row d-flex">
+                                        <input type="text" placeholder="Column name" class="configuration_input" autodocus="autofocus" required="required"/>
+                                        <select id="sqlDataTypes" name="sqlDataTypes">
+                                            <option value="int">INTEGER</option>
+                                            <option value="smallint">SMALLINT</option>
+                                            <option value="bigint">BIGINT</option>
+                                            <option value="serial">SERIAL</option>
+                                            <option value="boolean">BOOLEAN</option>
+                                            <option value="char">CHAR</option>
+                                            <option value="varchar">VARCHAR</option>
+                                            <option value="text">TEXT</option>
+                                            <option value="date">DATE</option>
+                                            <option value="time">TIME</option>
+                                            <option value="timestamp">TIMESTAMP</option>
+                                            <option value="float">FLOAT</option>
+                                            <option value="real">REAL</option>
+                                            <option value="numeric">NUMERIC</option>
+                                            <option value="json">JSON</option>
+                                            <option value="jsonb">JSONB</option>
+                                            <option value="bytea">BYTEA</option>
+                                            <option value="uuid">UUID</option>
+                                            <option value="array">ARRAY</option>
+                                            <option value="enum">ENUM</option>
+                                        </select>
+                                        <select name="mandatory" id="mandatory" >
+                                          <option value="true">True</option>
+                                          <option value="false">False</option>
+                                        </select>
+                                    </form>
+                                </t>
+                                <t t-foreach="table" t-as="row" t-key="row.id">
+                                    <div class="custom-table-row d-flex">
+                                        <div><t t-esc="row.column" /></div>
+                                        <div><t t-esc="row.type_of_fields" /></div>
+                                        <div><t t-esc="row.mandatory" /></div>
+                                    </div>
+                                </t>
+                        </div>
+
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+
+        </t>
+                </t>
+            </t>
+            <t t-else="">
+                <t t-name="rate_manager_nocontent_helper">
+                    <div class="shop_floor_o_view_nocontent">
+                        <div class="o_nocontent_help">
+                            <p class="o_view_nocontent_smiling_face1">
+                                <img t-att-src="'/web/static/img/smiling_face.svg'" alt="Smiling Face" width="120px"
+                                         height="140px"/>
+                                <span>No Templates yet configured</span>
+                            </p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </div>
+
+    </div>
+
+  </t>
+</templates>
